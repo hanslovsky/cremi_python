@@ -15,9 +15,9 @@ def create_border_mask(input_data, target, max_dist, background_label,axis=0):
     background_label : int - Border mask will be overlayed using this label.
     axis : int - Axis of iteration (perpendicular to 2d images for which mask will be generated)
     """
-    sl = [slice(None) for d in xrange(len(target.shape))]
+    sl = [slice(None) for d in range(len(target.shape))]
 
-    for z in xrange(target.shape[axis]):
+    for z in range(target.shape[axis]):
         sl[ axis ] = z
         border = create_border_mask_2d(input_data[tuple(sl)], max_dist)
         target_slice = input_data[tuple(sl)] if isinstance(input_data,h5py.Dataset) else np.copy(input_data[tuple(sl)]) 
@@ -90,4 +90,41 @@ def create_border_mask_2d(image, max_dist):
         )
 
     return distances <= max_dist
+
+def create_border_mask_3d(image, max_dist, weights = (1.0, 1.0, 1.0)):
+    """
+    Create binary border mask for image.
+    A pixel is part of a border if one of its 4-neighbors has different label.
+
+    Parameters
+    ----------
+    image : numpy.ndarray - Image containing integer labels.
+    max_dist : int or float - Maximum distance from border for pixels to be included into the mask.
+
+    Returns
+    -------
+    mask : numpy.ndarray - Binary mask of border pixels. Same shape as image.
+    """
+    max_dist = max(max_dist, 0)
+    weights  = np.copy(np.asarray(weights))
+
+    padded = np.pad(image, 1, mode='edge')
+
+    # It is not clear from the docstring, but distance_transform_edt computes the distance from
+    # non-zero (i.e. non-background) points to the nearest zero (i.e. background) point.
+    # https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.ndimage.morphology.distance_transform_edt.html
+    border_pixels = np.logical_and(
+        np.logical_and( image == padded[:-2, 1:-1, 1:-1], image == padded[2:, 1:-1, 1:-1] ),
+        np.logical_and(
+            np.logical_and( image == padded[1:-1, :-2, 1:-1], image == padded[1:-1, 2:, 1:-1] ),
+            np.logical_and( image == padded[1:-1, 1:-1, :-2], image == padded[1:-1, 1:-1, 2:] )))
+
+    distances = scipy.ndimage.distance_transform_edt(
+        border_pixels,
+        return_distances = True,
+        return_indices   = False,
+        sampling         = weights
+        )
+
+    return distances, (distances <= max_dist)
     

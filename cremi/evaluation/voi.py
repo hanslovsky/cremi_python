@@ -167,7 +167,7 @@ def contingency_table(seg, gt, ignore_seg=[0], ignore_gt=[0], norm=True):
     data[ignored] = 0
     cont = sparse.coo_matrix((data, (segr, gtr))).tocsc()
     if norm:
-        cont /= float(cont.sum())
+        cont = cont / float(cont.sum())
     return cont
 
 def divide_columns(matrix, row, in_place=False):
