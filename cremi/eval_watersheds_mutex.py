@@ -27,7 +27,7 @@ def run_evaluation():
     parser.add_argument('--sample', choices=tuple('ABC012'), required=True)
     parser.add_argument('--setup', choices=tuple(range(0, 6)), type=int, required=True)
     parser.add_argument('--iteration', type=int, required=True)
-    parser.add_argument('--threshold', type=str, choices=('0.5,'), required=False)
+    parser.add_argument('--threshold', type=str, choices=('0.1', '0.3', '0.5', '0.7', '0.9'), required=False)
     parser.add_argument('--border-threshold', type=float, required=False)
     parser.add_argument('--log-data', type=str, default=None, required=False)
     parser.add_argument('--remove-log-dir', action='store_true')
