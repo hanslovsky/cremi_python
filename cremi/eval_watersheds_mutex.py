@@ -34,8 +34,11 @@ def run_evaluation():
     parser.add_argument('--ignore-glia', type=float, default=None)
     parser.add_argument('--ignore-training-mask', action='store_true')
     parser.add_argument('--overwrite-existing', action='store_true')
+    parser.add_argument('--with-glia', action='store_true')
 
     args = parser.parse_args()
+
+    with_glia = '-with-glia' if args.with_glia else ''
 
     container               = container_pattern % dict(sample=args.sample)
     ground_truth_container  = ground_truth_container_pattern % dict(sample=args.sample)
@@ -43,7 +46,7 @@ def run_evaluation():
         setup           = args.setup,
         threshold      = '' if args.threshold is None else ('-threshold=%s' % args.threshold),
         iteration       = args.iteration)
-    dataset                 = f'{group}-merged-with-glia'
+    dataset                 = f'{group}-merged{with_glia}'
     glia_prediction_dataset = glia_prediction_pattern % dict(setup=args.setup)
 
     with z5py.File(container, 'r') as f:
@@ -59,7 +62,7 @@ def run_evaluation():
     evaluation_base_path = 'evaluation_border-threshold=%s' % str(args.border_threshold)
     evaluation_base_path = f'{evaluation_base_path}_ignore-training-mask' if args.ignore_training_mask else evaluation_base_path
     evaluation_base_path = f'{evaluation_base_path}_ignore-glia=%s' % str(args.ignore_glia) if args.ignore_glia else evaluation_base_path
-    evaluation_file_name = f'{container}{group}_{evaluation_base_path}.json'
+    evaluation_file_name = f'{container}{group}_{evaluation_base_path}{with_glia}.json'
 
     try:
         with open(evaluation_file_name, 'r') as f:
