@@ -9,6 +9,16 @@ import shutil
 import sys
 import z5py
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 def run_evaluation():
 
     experiment_dir    = '/nrs/saalfeld/hanslovskyp/experiments/quasi-isotropic-predictions/affinities-glia/neuron_ids-unlabeled-unmask-background'
@@ -34,7 +44,7 @@ def run_evaluation():
     parser.add_argument('--ignore-glia', type=float, default=None)
     parser.add_argument('--ignore-training-mask', action='store_true')
     parser.add_argument('--overwrite-existing', action='store_true')
-    parser.add_argument('--with-glia', action='store_true')
+    parser.add_argument('--with-glia', type=str2bool, const=True, default=False, nargs='?')
 
     args = parser.parse_args()
 
