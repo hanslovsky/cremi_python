@@ -43,7 +43,7 @@ def run_evaluation():
         setup           = args.setup,
         threshold      = '' if args.threshold is None else ('-threshold=%s' % args.threshold),
         iteration       = args.iteration)
-    dataset                 = f'{group}-merged'
+    dataset                 = f'{group}-merged-with-glia'
     glia_prediction_dataset = glia_prediction_pattern % dict(setup=args.setup)
 
     with z5py.File(container, 'r') as f:
